@@ -18,6 +18,6 @@ func Setup(app *fiber.App) {
 	app.Post("/caregiver/status", controllers.UpdateCaregiverStatus(Db))
 	app.Get("/admin/users", controllers.GetUsers(Db))
 	app.Post("/admin/users", controllers.AddUser(Db))
-	app.Post("/emergency/alerts", controllers.SendEmergencyAlert())
+    app.Post("/emergency/alerts", controllers.SendEmergencyAlert())
 }
 

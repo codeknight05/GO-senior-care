@@ -16,6 +16,8 @@ import (
 
 
 	_ "github.com/mattn/go-sqlite3"
+	"encoding/json"
+    "net/http"
 )
 
 func main() {
@@ -30,6 +32,34 @@ func main() {
 
 	
 	app.Listen(":9000")
-}
 
+	// Define the health check handler
+	http.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]string{"status": "API is working!"})
+		} else {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	// Define the data receiving handler
+	http.HandleFunc("/api/data", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			var requestData map[string]interface{}
+			decoder := json.NewDecoder(r.Body)
+			if err := decoder.Decode(&requestData); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]interface{}{"received": requestData})
+		} else {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	// Start the server
+	http.ListenAndServe(":8080", nil)
+}
 
